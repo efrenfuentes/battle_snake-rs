@@ -5,7 +5,7 @@ use rand::seq::SliceRandom;
 use serde_json::{json, Value};
 
 use crate::battle_snake::BattleSnake;
-use crate::model::{Board, Game, Snake};
+use crate::model::{Board, Direction, Game, Snake};
 
 use crate::moves::{move_to_coord, safe_moves};
 
@@ -57,7 +57,7 @@ impl BattleSnake for OpportunistSnake {
     }
 
     // Get food or choose a random move from the safe ones
-    fn choose_move<'a>(&self, board: &Board, snake: &Snake, safe_moves: Vec<&'a str>) -> &'a str {
+    fn choose_move<'a>(&self, board: &Board, snake: &Snake, safe_moves: Vec<Direction>) -> &'a str {
         let head = &snake.body[0];
         let food = &board.food;
 
@@ -69,10 +69,18 @@ impl BattleSnake for OpportunistSnake {
             })
             .collect::<Vec<_>>();
 
-        if !moves_with_food.is_empty() {
-            moves_with_food.choose(&mut rand::thread_rng()).unwrap()
+        let choosed_move = if !moves_with_food.is_empty() {
+            moves_with_food
+                .choose(&mut rand::thread_rng())
+                .unwrap()
+                .to_string()
         } else {
-            safe_moves.choose(&mut rand::thread_rng()).unwrap_or(&"up")
-        }
+            safe_moves
+                .choose(&mut rand::thread_rng())
+                .unwrap_or(&Direction::Up)
+                .to_string()
+        };
+
+        Box::leak(choosed_move.into_boxed_str())
     }
 }

@@ -2,6 +2,7 @@ use rocket::serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashMap;
+use std::fmt;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Game {
@@ -43,4 +44,23 @@ pub struct GameState {
     pub turn: i32,
     pub board: Board,
     pub you: Snake,
+}
+
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+impl fmt::Display for Direction {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Direction::Up => write!(f, "up"),
+            Direction::Down => write!(f, "down"),
+            Direction::Left => write!(f, "left"),
+            Direction::Right => write!(f, "right"),
+        }
+    }
 }

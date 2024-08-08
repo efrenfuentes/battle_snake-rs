@@ -5,7 +5,7 @@ use rand::seq::SliceRandom;
 use serde_json::{json, Value};
 
 use crate::battle_snake::BattleSnake;
-use crate::model::{Board, Game, Snake};
+use crate::model::{Board, Direction, Game, Snake};
 
 use crate::moves::safe_moves;
 
@@ -57,7 +57,16 @@ impl BattleSnake for RandomSnake {
     }
 
     // Choose a random move from the safe ones
-    fn choose_move<'a>(&self, _board: &Board, _snake: &Snake, safe_moves: Vec<&'a str>) -> &'a str {
-        safe_moves.choose(&mut rand::thread_rng()).unwrap_or(&"up")
+    fn choose_move<'a>(
+        &self,
+        _board: &Board,
+        _snake: &Snake,
+        safe_moves: Vec<Direction>,
+    ) -> &'a str {
+        safe_moves
+            .choose(&mut rand::thread_rng())
+            .unwrap_or(Direction::Up)
+            .to_string()
+            .as_str()
     }
 }
