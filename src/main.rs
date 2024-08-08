@@ -14,13 +14,15 @@ use std::env;
 mod battle_snake;
 mod model;
 mod moves;
-mod random;
+mod opportunist;
+// mod random;
 
 use model::GameState;
 
-use random::RandomSnake;
+use opportunist::OpportunistSnake;
+// use random::RandomSnake;
 
-static BATTLE_SNAKE: Mutex<RandomSnake> = Mutex::new(RandomSnake::new());
+static BATTLE_SNAKE: Mutex<OpportunistSnake> = Mutex::new(OpportunistSnake::new());
 
 // API and Response Objects
 // See https://docs.battlesnake.com/api

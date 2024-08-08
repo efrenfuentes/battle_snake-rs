@@ -27,13 +27,11 @@ pub fn safe_moves(board: &Board, snake: &Snake) -> Vec<&'static str> {
     check_snakes_bodies(opponents, head, &mut is_move_safe);
 
     // Are there any safe moves left?
-    let safe_moves = is_move_safe
+    is_move_safe
         .into_iter()
         .filter(|&(_, v)| v)
         .map(|(k, _)| k)
-        .collect::<Vec<_>>();
-
-    safe_moves
+        .collect::<Vec<_>>()
 }
 
 fn init_safe_moves() -> HashMap<&'static str, bool> {
@@ -86,10 +84,8 @@ fn check_board_bounds(
     }
 }
 
-fn check_snake_body(snake: &Vec<Coord>, head: &Coord, is_move_safe: &mut HashMap<&str, bool>) {
-    for i in 0..snake.len() {
-        let body_part = &snake[i];
-
+fn check_snake_body(snake: &[Coord], head: &Coord, is_move_safe: &mut HashMap<&str, bool>) {
+    for body_part in snake {
         if head.x == body_part.x {
             if head.y == body_part.y - 1 {
                 is_move_safe.insert("up", false);
@@ -106,10 +102,50 @@ fn check_snake_body(snake: &Vec<Coord>, head: &Coord, is_move_safe: &mut HashMap
     }
 }
 
-fn check_snakes_bodies(snakes: &Vec<Snake>, head: &Coord, is_move_safe: &mut HashMap<&str, bool>) {
+fn check_snakes_bodies(snakes: &[Snake], head: &Coord, is_move_safe: &mut HashMap<&str, bool>) {
     for snake in snakes {
         let snake_body = &snake.body;
 
         check_snake_body(snake_body, head, is_move_safe);
+    }
+}
+
+pub fn move_to_coord(moves: &str, head: &Coord) -> Coord {
+    match moves {
+        "up" => Coord {
+            x: head.x,
+            y: head.y + 1,
+        },
+        "down" => Coord {
+            x: head.x,
+            y: head.y - 1,
+        },
+        "left" => Coord {
+            x: head.x - 1,
+            y: head.y,
+        },
+        "right" => Coord {
+            x: head.x + 1,
+            y: head.y,
+        },
+        _ => Coord {
+            x: head.x,
+            y: head.y,
+        },
+    }
+}
+
+#[allow(dead_code)]
+pub fn coordinate_to_move(coord: &Coord, head: &Coord) -> &'static str {
+    if coord.x == head.x && coord.y == head.y + 1 {
+        "up"
+    } else if coord.x == head.x && coord.y == head.y - 1 {
+        "down"
+    } else if coord.x == head.x - 1 && coord.y == head.y {
+        "left"
+    } else if coord.x == head.x + 1 && coord.y == head.y {
+        "right"
+    } else {
+        "up"
     }
 }

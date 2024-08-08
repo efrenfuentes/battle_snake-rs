@@ -1,4 +1,4 @@
-// RandomSnake is a simple Battlesnake that moves randomly.
+// Opportunist is a simple Battlesnake that moves randomly, but gets food when it can.
 
 use log::info;
 use rand::seq::SliceRandom;
@@ -7,30 +7,30 @@ use serde_json::{json, Value};
 use crate::battle_snake::BattleSnake;
 use crate::model::{Board, Game, Snake};
 
-use crate::moves::safe_moves;
+use crate::moves::{move_to_coord, safe_moves};
 
-pub struct RandomSnake;
+pub struct OpportunistSnake;
 
-impl RandomSnake {
+impl OpportunistSnake {
     pub const fn new() -> Self {
-        RandomSnake
+        OpportunistSnake
     }
 }
 
-impl BattleSnake for RandomSnake {
+impl BattleSnake for OpportunistSnake {
     // info is called when you create your Battlesnake on play.battlesnake.com
     // and controls your Battlesnake's appearance
     // TIP: If you open your Battlesnake URL in a browser you should see this data
     fn info(&self) -> Value {
         info!("INFO");
 
-        return json!({
+        json!({
             "apiversion": "1",
             "author": "efrenfuentes",
-            "color": "#5095c7",
-            "head": "do-sammy",
-            "tail": "do-sammy",
-        });
+            "color": "#c47ee0",
+            "head": "silly",
+            "tail": "round-bum",
+        })
     }
 
     // start is called when your Battlesnake begins a game
@@ -49,15 +49,30 @@ impl BattleSnake for RandomSnake {
     fn get_move(&self, _game: &Game, turn: &i32, board: &Board, snake: &Snake) -> Value {
         let safe_moves = safe_moves(board, snake);
 
-        // Choose a move from the safe ones
+        // choose a move from the safe ones
         let chosen = self.choose_move(board, snake, safe_moves);
 
         info!("MOVE {}: {}", turn, chosen);
-        return json!({ "move": chosen });
+        json!({ "move": chosen })
     }
 
-    // Choose a random move from the safe ones
-    fn choose_move<'a>(&self, _board: &Board, _snake: &Snake, safe_moves: Vec<&'a str>) -> &'a str {
-        safe_moves.choose(&mut rand::thread_rng()).unwrap_or(&"up")
+    // Get food or choose a random move from the safe ones
+    fn choose_move<'a>(&self, board: &Board, snake: &Snake, safe_moves: Vec<&'a str>) -> &'a str {
+        let head = &snake.body[0];
+        let food = &board.food;
+
+        let moves_with_food = safe_moves
+            .iter()
+            .filter(|m| {
+                let coord = move_to_coord(m, head);
+                food.contains(&coord)
+            })
+            .collect::<Vec<_>>();
+
+        if !moves_with_food.is_empty() {
+            moves_with_food.choose(&mut rand::thread_rng()).unwrap()
+        } else {
+            safe_moves.choose(&mut rand::thread_rng()).unwrap_or(&"up")
+        }
     }
 }

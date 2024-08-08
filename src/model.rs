@@ -31,7 +31,7 @@ pub struct Snake {
     pub shout: Option<String>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub struct Coord {
     pub x: i32,
     pub y: i32,

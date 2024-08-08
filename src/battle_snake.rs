@@ -7,5 +7,5 @@ pub trait BattleSnake {
     fn start(&self, game: &Game, turn: &i32, board: &Board, snake: &Snake);
     fn get_move(&self, game: &Game, turn: &i32, board: &Board, snake: &Snake) -> Value;
     fn end(&self, game: &Game, turn: &i32, board: &Board, snake: &Snake);
-    fn choose_move<'a>(&self, safe_moves: Vec<&'a str>) -> &'a str;
+    fn choose_move<'a>(&self, board: &Board, snake: &Snake, safe_moves: Vec<&'a str>) -> &'a str;
 }
