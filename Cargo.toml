@@ -1,0 +1,18 @@
+[package]
+name = "battle_snake-rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["Efren Fuentes <efrenfuentes@gmail.com>"]
+readme = "README.md"
+keywords = ["battlesnake"]
+description = """
+This is a Battlesnake implementation in Rust to compete in the Battlesnake game.
+"""
+
+[dependencies]
+rocket = { version = "0.5.1", features = ["json"] }
+serde = { version = "1.0.122", features = ["derive"] }
+serde_json = "1.0.122"
+log = "0.4.22"
+env_logger = "0.11.5"
+rand = "0.8.5"
