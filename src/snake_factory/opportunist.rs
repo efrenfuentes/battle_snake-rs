@@ -7,7 +7,8 @@ use serde_json::{json, Value};
 use crate::battle_snake::BattleSnake;
 use crate::model::{Board, Direction, Game, Snake};
 
-use crate::moves::{move_to_coord, safe_moves};
+use crate::moves::safe_moves;
+use crate::utils::move_to_coord;
 
 pub struct OpportunistSnake;
 

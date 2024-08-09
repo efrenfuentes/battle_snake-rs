@@ -13,6 +13,7 @@ mod battle_snake;
 mod model;
 mod moves;
 mod snake_factory;
+mod utils;
 
 use model::GameState;
 
