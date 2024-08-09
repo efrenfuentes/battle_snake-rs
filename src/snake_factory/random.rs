@@ -24,13 +24,13 @@ impl BattleSnake for RandomSnake {
     fn info(&self) -> Value {
         info!("INFO");
 
-        return json!({
+        json!({
             "apiversion": "1",
             "author": "efrenfuentes",
             "color": "#5095c7",
             "head": "do-sammy",
-            "tail": "do-sammy",
-        });
+            "tail": "present",
+        })
     }
 
     // start is called when your Battlesnake begins a game
@@ -53,7 +53,7 @@ impl BattleSnake for RandomSnake {
         let chosen = self.choose_move(board, snake, safe_moves);
 
         info!("MOVE {}: {}", turn, chosen);
-        return json!({ "move": chosen });
+        json!({ "move": chosen })
     }
 
     // Choose a random move from the safe ones
@@ -63,10 +63,11 @@ impl BattleSnake for RandomSnake {
         _snake: &Snake,
         safe_moves: Vec<Direction>,
     ) -> &'a str {
-        safe_moves
+        let choosed_move = safe_moves
             .choose(&mut rand::thread_rng())
-            .unwrap_or(Direction::Up)
-            .to_string()
-            .as_str()
+            .unwrap_or(&Direction::Up)
+            .to_string();
+
+        Box::leak(choosed_move.into_boxed_str())
     }
 }

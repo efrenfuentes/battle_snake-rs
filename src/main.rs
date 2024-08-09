@@ -1,40 +1,37 @@
 #[macro_use]
 extern crate rocket;
 
-use battle_snake::BattleSnake;
 use log::info;
 use rocket::fairing::AdHoc;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde_json::Value;
-use std::sync::Mutex;
 
 use std::env;
 
 mod battle_snake;
 mod model;
 mod moves;
-mod opportunist;
-// mod random;
+mod snake_factory;
 
 use model::GameState;
 
-use opportunist::OpportunistSnake;
-// use random::RandomSnake;
-
-static BATTLE_SNAKE: Mutex<OpportunistSnake> = Mutex::new(OpportunistSnake::new());
+use snake_factory::factory;
 
 // API and Response Objects
 // See https://docs.battlesnake.com/api
 
-#[get("/")]
-fn handle_index() -> Json<Value> {
-    Json(BATTLE_SNAKE.lock().unwrap().info())
+#[get("/<snake>")]
+fn handle_index(snake: String) -> Json<Value> {
+    let snake = factory(&snake);
+    Json(snake.info())
 }
 
-#[post("/start", format = "json", data = "<start_req>")]
-fn handle_start(start_req: Json<GameState>) -> Status {
-    BATTLE_SNAKE.lock().unwrap().start(
+#[post("/<snake>/start", format = "json", data = "<start_req>")]
+fn handle_start(snake: String, start_req: Json<GameState>) -> Status {
+    let snake = factory(&snake);
+
+    snake.start(
         &start_req.game,
         &start_req.turn,
         &start_req.board,
@@ -44,9 +41,11 @@ fn handle_start(start_req: Json<GameState>) -> Status {
     Status::Ok
 }
 
-#[post("/move", format = "json", data = "<move_req>")]
-fn handle_move(move_req: Json<GameState>) -> Json<Value> {
-    let response = BATTLE_SNAKE.lock().unwrap().get_move(
+#[post("/<snake>/move", format = "json", data = "<move_req>")]
+fn handle_move(snake: String, move_req: Json<GameState>) -> Json<Value> {
+    let snake = factory(&snake);
+
+    let response = snake.get_move(
         &move_req.game,
         &move_req.turn,
         &move_req.board,
@@ -56,12 +55,11 @@ fn handle_move(move_req: Json<GameState>) -> Json<Value> {
     Json(response)
 }
 
-#[post("/end", format = "json", data = "<end_req>")]
-fn handle_end(end_req: Json<GameState>) -> Status {
-    BATTLE_SNAKE
-        .lock()
-        .unwrap()
-        .end(&end_req.game, &end_req.turn, &end_req.board, &end_req.you);
+#[post("/<snake>/end", format = "json", data = "<end_req>")]
+fn handle_end(snake: String, end_req: Json<GameState>) -> Status {
+    let snake = factory(&snake);
+
+    snake.end(&end_req.game, &end_req.turn, &end_req.board, &end_req.you);
 
     Status::Ok
 }

@@ -29,7 +29,7 @@ impl BattleSnake for OpportunistSnake {
             "author": "efrenfuentes",
             "color": "#c47ee0",
             "head": "silly",
-            "tail": "round-bum",
+            "tail": "mlh-gene",
         })
     }
 
