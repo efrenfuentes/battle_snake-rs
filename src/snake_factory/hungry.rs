@@ -1,5 +1,4 @@
-// RandomSnake is a simple Battlesnake that moves randomly.
-
+// Hungry a simple Battlesnake that moves to closest food to get it.
 use log::info;
 use serde_json::{json, Value};
 
@@ -8,15 +7,15 @@ use crate::model::{Board, Direction, Game, Snake};
 
 use crate::utils::random_move;
 
-pub struct RandomSnake;
+pub struct HungrySnake;
 
-impl RandomSnake {
+impl HungrySnake {
     pub const fn new() -> Self {
-        RandomSnake
+        HungrySnake
     }
 }
 
-impl BattleSnake for RandomSnake {
+impl BattleSnake for HungrySnake {
     // info is called when you create your Battlesnake on play.battlesnake.com
     // and controls your Battlesnake's appearance
     // TIP: If you open your Battlesnake URL in a browser you should see this data
@@ -26,9 +25,9 @@ impl BattleSnake for RandomSnake {
         json!({
             "apiversion": "1",
             "author": "efrenfuentes",
-            "color": "#4eba6b",
-            "head": "fang",
-            "tail": "sharp",
+            "color": "#5095c7",
+            "head": "do-sammy",
+            "tail": "present",
         })
     }
 
@@ -49,20 +48,24 @@ impl BattleSnake for RandomSnake {
         let head = &snake.body[0];
         let safe_moves = head.possible_directions(board, snake);
 
-        // Choose a move from the safe ones
+        // choose a move from the safe ones
         let chosen = self.choose_move(board, snake, safe_moves);
 
         info!("MOVE {}: {}", turn, chosen);
         json!({ "move": chosen })
     }
 
-    // Choose a random move from the safe ones
-    fn choose_move<'a>(
-        &self,
-        _board: &Board,
-        _snake: &Snake,
-        safe_moves: Vec<Direction>,
-    ) -> &'a str {
-        random_move(safe_moves)
+    // Get food or choose a random move from the safe ones
+    fn choose_move<'a>(&self, board: &Board, snake: &Snake, safe_moves: Vec<Direction>) -> &'a str {
+        let head = &snake.body[0];
+
+        let closest_food = head.closest_food(board).unwrap();
+        let direction = head.direction_to(&closest_food);
+
+        if safe_moves.contains(&direction) {
+            Box::leak(direction.to_string().into_boxed_str())
+        } else {
+            random_move(safe_moves)
+        }
     }
 }
