@@ -1,37 +1,32 @@
 use crate::model::{Coord, Direction};
+use rand::seq::SliceRandom;
 
-pub fn move_to_coord(moves: &Direction, head: &Coord) -> Coord {
-    match moves {
-        Direction::Up => Coord {
-            x: head.x,
-            y: head.y + 1,
-        },
-        Direction::Down => Coord {
-            x: head.x,
-            y: head.y - 1,
-        },
-        Direction::Left => Coord {
-            x: head.x - 1,
-            y: head.y,
-        },
-        Direction::Right => Coord {
-            x: head.x + 1,
-            y: head.y,
-        },
-    }
+#[allow(dead_code)]
+pub fn distance(coord1: &Coord, coord2: &Coord) -> i32 {
+    (coord1.x - coord2.x).abs() + (coord1.y - coord2.y).abs()
 }
 
 #[allow(dead_code)]
-pub fn coordinate_to_move(coord: &Coord, head: &Coord) -> Direction {
-    if coord.x == head.x && coord.y == head.y + 1 {
-        Direction::Up
-    } else if coord.x == head.x && coord.y == head.y - 1 {
-        Direction::Down
-    } else if coord.x == head.x - 1 && coord.y == head.y {
-        Direction::Left
-    } else if coord.x == head.x + 1 && coord.y == head.y {
-        Direction::Right
-    } else {
-        Direction::Up
+pub fn closest_point(coord: &Coord, points: &Vec<Coord>) -> Option<Coord> {
+    let mut closest: Option<Coord> = None;
+    let mut min_distance = i32::MAX;
+
+    for point in points {
+        let current_distance = distance(coord, point);
+        if current_distance < min_distance {
+            min_distance = current_distance;
+            closest = Some(*point);
+        }
     }
+
+    closest
+}
+
+pub fn random_move(possible_moves: Vec<Direction>) -> &'static str {
+    let direction = possible_moves
+        .choose(&mut rand::thread_rng())
+        .unwrap_or(&Direction::Up)
+        .to_string();
+
+    Box::leak(direction.into_boxed_str())
 }

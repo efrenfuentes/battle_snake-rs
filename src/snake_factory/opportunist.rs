@@ -1,14 +1,11 @@
 // Opportunist is a simple Battlesnake that moves randomly, but gets food when it can.
-
 use log::info;
-use rand::seq::SliceRandom;
 use serde_json::{json, Value};
 
 use crate::battle_snake::BattleSnake;
 use crate::model::{Board, Direction, Game, Snake};
 
-use crate::moves::safe_moves;
-use crate::utils::move_to_coord;
+use crate::utils::random_move;
 
 pub struct OpportunistSnake;
 
@@ -48,7 +45,8 @@ impl BattleSnake for OpportunistSnake {
     // Valid moves are "up", "down", "left", or "right"
     // See https://docs.battlesnake.com/api/example-move for available data
     fn get_move(&self, _game: &Game, turn: &i32, board: &Board, snake: &Snake) -> Value {
-        let safe_moves = safe_moves(board, snake);
+        let head = &snake.body[0];
+        let safe_moves = head.possible_directions(board, snake);
 
         // choose a move from the safe ones
         let chosen = self.choose_move(board, snake, safe_moves);
@@ -60,28 +58,13 @@ impl BattleSnake for OpportunistSnake {
     // Get food or choose a random move from the safe ones
     fn choose_move<'a>(&self, board: &Board, snake: &Snake, safe_moves: Vec<Direction>) -> &'a str {
         let head = &snake.body[0];
-        let food = &board.food;
 
-        let moves_with_food = safe_moves
-            .iter()
-            .filter(|m| {
-                let coord = move_to_coord(m, head);
-                food.contains(&coord)
-            })
-            .collect::<Vec<_>>();
+        let moves_with_food = head.possible_directions_with_food(board, snake);
 
-        let choosed_move = if !moves_with_food.is_empty() {
-            moves_with_food
-                .choose(&mut rand::thread_rng())
-                .unwrap()
-                .to_string()
+        if !moves_with_food.is_empty() {
+            random_move(moves_with_food)
         } else {
-            safe_moves
-                .choose(&mut rand::thread_rng())
-                .unwrap_or(&Direction::Up)
-                .to_string()
-        };
-
-        Box::leak(choosed_move.into_boxed_str())
+            random_move(safe_moves)
+        }
     }
 }

@@ -1,13 +1,12 @@
 // RandomSnake is a simple Battlesnake that moves randomly.
 
 use log::info;
-use rand::seq::SliceRandom;
 use serde_json::{json, Value};
 
 use crate::battle_snake::BattleSnake;
 use crate::model::{Board, Direction, Game, Snake};
 
-use crate::moves::safe_moves;
+use crate::utils::random_move;
 
 pub struct RandomSnake;
 
@@ -47,7 +46,8 @@ impl BattleSnake for RandomSnake {
     // Valid moves are "up", "down", "left", or "right"
     // See https://docs.battlesnake.com/api/example-move for available data
     fn get_move(&self, _game: &Game, turn: &i32, board: &Board, snake: &Snake) -> Value {
-        let safe_moves = safe_moves(board, snake);
+        let head = &snake.body[0];
+        let safe_moves = head.possible_directions(board, snake);
 
         // Choose a move from the safe ones
         let chosen = self.choose_move(board, snake, safe_moves);
@@ -63,11 +63,6 @@ impl BattleSnake for RandomSnake {
         _snake: &Snake,
         safe_moves: Vec<Direction>,
     ) -> &'a str {
-        let choosed_move = safe_moves
-            .choose(&mut rand::thread_rng())
-            .unwrap_or(&Direction::Up)
-            .to_string();
-
-        Box::leak(choosed_move.into_boxed_str())
+        random_move(safe_moves)
     }
 }
